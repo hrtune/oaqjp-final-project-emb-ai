@@ -1,5 +1,6 @@
 from flask import Flask
 import requests
+import json
 
 
 def emotion_detector(text_to_analyze):
@@ -8,5 +9,17 @@ def emotion_detector(text_to_analyze):
     INPUT = {"raw_document": {"text": text_to_analyze}}
 
     res = requests.post(url=URL, headers=HEADERS, json=INPUT)
+    
+    emotion_score = json.loads(res.text)
 
-    return res.text
+    emotion_score = emotion_score["emotionPredictions"][0]["emotion"]
+
+    emotion_score = {key: float(value) for key, value in emotion_score.items()}
+
+    dominant_emotion = max(emotion_score, key=emotion_score.get)
+
+    emotion_score["dominant_emotion"] = dominant_emotion
+
+    return emotion_score
+  
+        
